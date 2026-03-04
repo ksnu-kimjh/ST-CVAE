@@ -3,6 +3,7 @@ This is the official implementation of the paper:
 **"Uncertainty-Aware Precaching Scheme based on ST-CVAE in Content-Centric Internet of Vehicles"** *Submitted to IEEE Transactions on Intelligent Transportation Systems (TITS).*
 
 📊 **Dataset**
+
 The model is evaluated using a large-scale dataset of **375,400 independent communication request snapshots.**
 
 **Data Download**
