@@ -1,0 +1,67 @@
+project:
+  name: "RSU_Dwell_Time_Prediction"
+  data_dirs: ["./dataset"]
+  file_pattern: "rsu_*.csv"
+  output_dir: "./experiment_results"
+
+pipeline:
+  seed: 77
+  test_size: 0.3
+  target_type: "Type1"  # Type1 or Type2
+  sampling_size: 50000
+  n_optuna_trials: 30
+  use_optuna: False     # True: search_space, False: fixed_params
+  optuna_test_size: 0.3
+
+data:
+  numerical_cols: ['r_cov', 'd_n_c', 'n_t_0', 'n_t_1', 'n_t_2', 'n_t_3', 'd_t_c', 'd_t_n', 'v_c_a', 'v_n_a', 'tlt_c', 'tlt_n', 'n_cur', 'n_nxt', 'dist_to_exit', 'naive_dwell_time', 'naive_next_entry_time', 'naive_exit_time']
+  spatial_cols: ['n_t_0', 'n_t_1', 'n_t_2', 'n_t_3']
+  categorical_cols: ['cur_rsu', 'next_rsu', 'dirct', 'tls_c', 'tls_n']
+  targets_type1: ['dwell_time', 'next_entry_time', 'exit_time']
+  targets_type2: ['dwell_time', 'delta_entry_time', 'delta_exit_time']
+
+common_model_params:
+  calibration_ratio: 0.2
+  quantiles: [0.05, 0.95]
+
+models:
+  ST_CVAE:
+    class: "ST_CVAE"
+    use_native_multitarget: True
+    fixed_params:
+      d_hidden: 384
+      d_latent: 8
+      epochs: 200
+      batch_size: 512
+      lr: 0.0013568045665149193
+      dropout: 0.1422004759079974
+      kl_weight: 0.00021467754715211732
+      patience: 20
+      verbose: True
+    search_space:
+      d_hidden: {type: "int", low: 128, high: 512, step: 64}
+      d_latent: {type: "int", low: 8, high: 64, step: 8}
+      kl_weight: {type: "float", low: 0.0001, high: 0.1, log: True}
+      lr: {type: "float", low: 0.0001, high: 0.005, log: True}
+      dropout: {type: "float", low: 0.0, high: 0.3}
+  
+  ST_CVAE_CQR:
+    class: "ST_CVAE_CQR"
+    use_native_multitarget: True
+    fixed_params:
+      d_hidden: 256
+      d_latent: 8
+      epochs: 200
+      batch_size: 512
+      lr: 0.00134231229116691
+      dropout: 0.12769138322217594
+      kl_weight: 0.00012858979001909425
+      weight_decay: 0.00001
+      patience: 20
+      verbose: True
+    search_space:
+      d_hidden: {type: "int", low: 128, high: 512, step: 64}
+      d_latent: {type: "int", low: 8, high: 64, step: 8}
+      kl_weight: {type: "float", low: 0.0001, high: 0.1, log: True}
+      lr: {type: "float", low: 0.0001, high: 0.005, log: True}
+      dropout: {type: "float", low: 0.0, high: 0.3}
